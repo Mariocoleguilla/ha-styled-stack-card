@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        "target": "es2020",
+        "module": "esnext",
+        "moduleResolution": "node",
+        "experimentalDecorators": true,
+        "useDefineForClassFields": false
+    },
+    "include": [
+        "src/**/*.ts"
+    ]
+}
