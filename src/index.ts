@@ -1,19 +1,40 @@
 // src/index.ts
-import './styled-stack-card';
-import './styled-stack-card-editor';
+import { StyledStackCard } from './styled-stack-card';
+import { StyledStackCardEditor } from './styled-stack-card-editor';
 
-// REGISTRO PARA EL BUSCADOR DE TARJETAS DE HOME ASSISTANT
+// Registrar los custom elements
+if (!customElements.get('styled-stack-card')) {
+    customElements.define('styled-stack-card', StyledStackCard);
+}
+
+if (!customElements.get('styled-stack-card-editor')) {
+    customElements.define('styled-stack-card-editor', StyledStackCardEditor);
+}
+
+declare global {
+    interface Window {
+        customCards: Array<{
+            type: string;
+            name: string;
+            preview?: boolean;
+            description?: string;
+        }>;
+    }
+}
+
 window.customCards = window.customCards || [];
-window.customCards.push({
-  type: 'custom:styled-stack-card',
-  name: 'Styled Stack Card',
-  preview: true, // Permite ver una previsualización si está soportada
-  description: 'Un contenedor personalizado con degradados y temas visuales para tus tarjetas.',
-  documentationURL: 'https://github.com/tu-usuario/ha-styled-stack-card' // Opcional: enlace a tu repo
-});
+
+if (!window.customCards.some(c => c.type === 'styled-stack-card')) {
+    window.customCards.push({
+        type: 'styled-stack-card', // <--- QUITAMOS 'custom:' AQUÍ
+        name: 'Styled Stack Card',
+        preview: true,
+        description: 'Un contenedor personalizado con degradados y temas visuales para tus tarjetas.'
+    });
+}
 
 console.info(
-  "%c STYLED-STACK-CARD %c Cargada correctamente ",
-  "color: white; background: #1db954; font-weight: 700;",
-  "color: black; background: #f3f3f3; font-weight: 700;"
+    "%c STYLED-STACK-CARD %c Cargada correctamente ",
+    "color: white; background: #1db954; font-weight: 700;",
+    "color: black; background: #f3f3f3; font-weight: 700;"
 );
