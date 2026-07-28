@@ -86,6 +86,16 @@ export class StyledStackCard extends LitElement {
     return `linear-gradient(${angle}deg, ${start} 0%, ${end} 100%)`;
   }
 
+  // Configuración por defecto para el buscador de tarjetas
+  public static getStubConfig() {
+    return {
+      style_config: {
+        preset: 'spotify'
+      },
+      cards: []
+    };
+  }
+
   render() {
     if (!this.config) return html``;
 
