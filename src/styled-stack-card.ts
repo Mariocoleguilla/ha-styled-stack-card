@@ -30,7 +30,24 @@ export class StyledStackCard extends LitElement {
   }
 
   public static async getConfigElement() {
+    await StyledStackCard.ensureHaEditorElements();
     return document.createElement('styled-stack-card-editor');
+  }
+
+  /** Carga hui-card-picker y hui-card-element-editor vía el editor nativo del vertical-stack. */
+  public static async ensureHaEditorElements(): Promise<void> {
+    if (customElements.get('hui-card-picker')) return;
+
+    const helpers = await (window as any).loadCardHelpers();
+    const stackCard = helpers.createCardElement({ type: 'vertical-stack' });
+    const cardClass = stackCard.constructor as { getConfigElement?: () => Promise<unknown> };
+
+    if (cardClass.getConfigElement) {
+      await cardClass.getConfigElement();
+    }
+
+    await customElements.whenDefined('hui-card-picker');
+    await customElements.whenDefined('hui-card-element-editor');
   }
 
   private _hass!: HomeAssistant;
