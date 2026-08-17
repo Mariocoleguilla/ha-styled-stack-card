@@ -22,6 +22,8 @@ interface StyledStackConfig extends LovelaceCardConfig {
   style_config?: {
     preset?: string;
     color_start?: string;
+    color_mid?: string;
+    color_mid_pos?: number;
     color_end?: string;
     angle?: string | number;
     [key: string]: any;
@@ -113,12 +115,20 @@ export class StyledStackCardEditor extends LitElement {
     const style = this._config.style_config || {};
     const startParsed = this._parseRgbaString(style.color_start || 'rgba(128,128,128,0.25)');
     const endParsed = this._parseRgbaString(style.color_end || 'rgba(30,30,30,0)');
+    const hasMid = style.color_mid !== undefined && style.color_mid !== null;
+    const midParsed = hasMid
+      ? this._parseRgbaString(style.color_mid!)
+      : { rgb: [128, 128, 128] as [number, number, number], alpha: 50 };
     return {
       preset: style.preset || 'custom',
       color_start_rgb: startParsed.rgb,
       color_start_alpha: startParsed.alpha,
       color_end_rgb: endParsed.rgb,
       color_end_alpha: endParsed.alpha,
+      has_mid: hasMid,
+      color_mid_rgb: midParsed.rgb,
+      color_mid_alpha: midParsed.alpha,
+      color_mid_pos: style.color_mid_pos ?? 50,
       angle: Number(style.angle ?? 135),
     };
   }
@@ -167,7 +177,7 @@ export class StyledStackCardEditor extends LitElement {
   }
 
   private _handleColorChange(
-    field: 'color_start' | 'color_end',
+    field: 'color_start' | 'color_mid' | 'color_end',
     rgb: [number, number, number],
     alpha: number
   ) {
@@ -181,20 +191,57 @@ export class StyledStackCardEditor extends LitElement {
     });
   }
 
-  private _handleColorRgbChanged(ev: CustomEvent, field: 'color_start' | 'color_end') {
+  private _handleColorRgbChanged(ev: CustomEvent, field: 'color_start' | 'color_mid' | 'color_end') {
     ev.stopPropagation();
     const data = this._getStyleData();
     const newRgb = ev.detail.value as [number, number, number];
-    const alpha = field === 'color_start' ? data.color_start_alpha : data.color_end_alpha;
+    const alpha =
+      field === 'color_start' ? data.color_start_alpha
+      : field === 'color_mid' ? data.color_mid_alpha
+      : data.color_end_alpha;
     this._handleColorChange(field, newRgb, alpha);
   }
 
-  private _handleAlphaChanged(ev: Event, field: 'color_start' | 'color_end') {
+  private _handleAlphaChanged(ev: Event, field: 'color_start' | 'color_mid' | 'color_end') {
     const input = ev.target as HTMLInputElement;
     const alpha = parseInt(input.value, 10);
     const data = this._getStyleData();
-    const rgb = field === 'color_start' ? data.color_start_rgb : data.color_end_rgb;
+    const rgb =
+      field === 'color_start' ? data.color_start_rgb
+      : field === 'color_mid' ? data.color_mid_rgb
+      : data.color_end_rgb;
     this._handleColorChange(field, rgb, alpha);
+  }
+
+  private _handleMidPosChanged(ev: Event) {
+    const input = ev.target as HTMLInputElement;
+    const pos = parseInt(input.value, 10);
+    const current = this._config.style_config || {};
+    this._updateConfig({
+      ...this._config,
+      style_config: { ...current, color_mid_pos: pos },
+    });
+  }
+
+  private _toggleMidColor() {
+    const current = this._config.style_config || {};
+    const hasMid = current.color_mid !== undefined;
+    if (hasMid) {
+      // Eliminar color_mid y color_mid_pos
+      const { color_mid, color_mid_pos, ...rest } = current as any;
+      void color_mid; void color_mid_pos;
+      this._updateConfig({ ...this._config, style_config: rest });
+    } else {
+      // Añadir con valor por defecto
+      this._updateConfig({
+        ...this._config,
+        style_config: {
+          ...current,
+          color_mid: 'rgba(128, 128, 128, 0.15)',
+          color_mid_pos: 50,
+        },
+      });
+    }
   }
 
   private _computePresetLabel = (schema: { name: string }) =>
@@ -205,22 +252,29 @@ export class StyledStackCardEditor extends LitElement {
 
   private _renderColorRow(
     label: string,
-    field: 'color_start' | 'color_end',
+    field: 'color_start' | 'color_mid' | 'color_end',
     rgb: [number, number, number],
-    alpha: number
+    alpha: number,
+    opts?: { removable?: boolean; midPos?: number }
   ) {
     const solidColor = `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
     const previewColor = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${(alpha / 100).toFixed(2)})`;
-    // Gradiente del slider de alpha: checker + gradiente de color encima
     const alphaTrack = `linear-gradient(to right, transparent, ${solidColor})`;
 
     return html`
       <div class="color-row">
         <div class="color-row-header">
           <span class="color-row-label">${label}</span>
-          <div class="color-swatch-wrap">
-            <div class="checker-bg"></div>
-            <div class="color-swatch" style="background:${previewColor}"></div>
+          <div class="color-row-header-right">
+            ${opts?.removable ? html`
+              <button class="btn-remove-mid" @click=${this._toggleMidColor} title="Eliminar color medio">
+                ✕
+              </button>
+            ` : nothing}
+            <div class="color-swatch-wrap">
+              <div class="checker-bg"></div>
+              <div class="color-swatch" style="background:${previewColor}"></div>
+            </div>
           </div>
         </div>
         <div class="color-row-body">
@@ -247,6 +301,25 @@ export class StyledStackCardEditor extends LitElement {
             </div>
             <span class="alpha-value">${alpha}%</span>
           </div>
+          ${opts?.midPos !== undefined ? html`
+            <div class="alpha-row">
+              <span class="alpha-label">Posición</span>
+              <div class="alpha-slider-wrap">
+                <div class="alpha-track" style="--alpha-gradient:linear-gradient(to right, var(--divider-color), var(--primary-color))"></div>
+                <input
+                  type="range"
+                  class="alpha-slider"
+                  min="1"
+                  max="99"
+                  step="1"
+                  .value=${String(opts.midPos)}
+                  @input=${this._handleMidPosChanged}
+                  @change=${this._handleMidPosChanged}
+                />
+              </div>
+              <span class="alpha-value">${opts.midPos}%</span>
+            </div>
+          ` : nothing}
         </div>
       </div>
     `;
@@ -353,7 +426,9 @@ export class StyledStackCardEditor extends LitElement {
     const hasClipboard = this._getClipboardCard() !== null;
 
     const gradientPreview = preset === 'custom'
-      ? `linear-gradient(${data.angle}deg, ${this._rgbToRgbaString(data.color_start_rgb, data.color_start_alpha)} 0%, ${this._rgbToRgbaString(data.color_end_rgb, data.color_end_alpha)} 100%)`
+      ? data.has_mid
+        ? `linear-gradient(${data.angle}deg, ${this._rgbToRgbaString(data.color_start_rgb, data.color_start_alpha)} 0%, ${this._rgbToRgbaString(data.color_mid_rgb, data.color_mid_alpha)} ${data.color_mid_pos}%, ${this._rgbToRgbaString(data.color_end_rgb, data.color_end_alpha)} 100%)`
+        : `linear-gradient(${data.angle}deg, ${this._rgbToRgbaString(data.color_start_rgb, data.color_start_alpha)} 0%, ${this._rgbToRgbaString(data.color_end_rgb, data.color_end_alpha)} 100%)`
       : '';
 
     return html`
@@ -378,6 +453,18 @@ export class StyledStackCardEditor extends LitElement {
             </div>
 
             ${this._renderColorRow('Color superior', 'color_start', data.color_start_rgb, data.color_start_alpha)}
+
+            <!-- Color medio (opcional) -->
+            ${data.has_mid
+              ? this._renderColorRow('Color medio', 'color_mid', data.color_mid_rgb, data.color_mid_alpha, { removable: true, midPos: data.color_mid_pos })
+              : html`
+                <button class="btn-add-mid" @click=${this._toggleMidColor}>
+                  <span class="btn-add-mid-icon">+</span>
+                  Añadir color intermedio
+                </button>
+              `
+            }
+
             ${this._renderColorRow('Color inferior', 'color_end', data.color_end_rgb, data.color_end_alpha)}
 
             <ha-form
@@ -532,6 +619,64 @@ export class StyledStackCardEditor extends LitElement {
           font-weight: 600;
           color: var(--primary-text-color);
           letter-spacing: 0.02em;
+        }
+        .color-row-header-right {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        /* Botón quitar color medio */
+        .btn-remove-mid {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 22px;
+          height: 22px;
+          border-radius: 50%;
+          border: 1.5px solid var(--error-color, #f44336);
+          background: transparent;
+          color: var(--error-color, #f44336);
+          font-size: 0.8em;
+          cursor: pointer;
+          padding: 0;
+          line-height: 1;
+          transition: background 0.15s ease, color 0.15s ease;
+        }
+        .btn-remove-mid:hover {
+          background: var(--error-color, #f44336);
+          color: #fff;
+        }
+        /* Botón añadir color intermedio */
+        .btn-add-mid {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          width: 100%;
+          background: transparent;
+          border: 1.5px dashed var(--divider-color);
+          border-radius: 10px;
+          padding: 10px 14px;
+          color: var(--secondary-text-color);
+          font-size: 0.85em;
+          cursor: pointer;
+          transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+        }
+        .btn-add-mid:hover {
+          border-color: var(--primary-color);
+          color: var(--primary-color);
+          background: color-mix(in srgb, var(--primary-color) 6%, transparent);
+        }
+        .btn-add-mid-icon {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          border: 1.5px solid currentColor;
+          font-size: 1.1em;
+          line-height: 1;
+          flex-shrink: 0;
         }
 
         /* Swatch circular con patrón de ajedrez para transparencia */

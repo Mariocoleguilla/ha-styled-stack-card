@@ -100,6 +100,11 @@ export class StyledStackCard extends LitElement {
     const end = style.color_end || 'transparent';
     const angle = style.angle || 135;
 
+    if (style.color_mid) {
+      const midPos = style.color_mid_pos ?? 50;
+      return `linear-gradient(${angle}deg, ${start} 0%, ${style.color_mid} ${midPos}%, ${end} 100%)`;
+    }
+
     return `linear-gradient(${angle}deg, ${start} 0%, ${end} 100%)`;
   }
 
