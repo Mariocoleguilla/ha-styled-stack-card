@@ -89,6 +89,29 @@ export class StyledStackCardEditor extends LitElement {
     );
   }
 
+  // --- Helpers de conversión rgba <-> [R,G,B] + alpha ---
+
+  /** Parsea 'rgba(R,G,B,A)' o 'rgb(R,G,B)' a { rgb: [R,G,B], alpha: number (0-100) } */
+  private _parseRgbaString(value: string): { rgb: [number, number, number]; alpha: number } {
+    const match = value.match(
+      /rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)(?:\s*,\s*([\d.]+))?\s*\)/
+    );
+    if (match) {
+      const r = parseInt(match[1], 10);
+      const g = parseInt(match[2], 10);
+      const b = parseInt(match[3], 10);
+      const a = match[4] !== undefined ? parseFloat(match[4]) : 1;
+      return { rgb: [r, g, b], alpha: Math.round(a * 100) };
+    }
+    return { rgb: [128, 128, 128], alpha: 100 };
+  }
+
+  /** Convierte [R,G,B] + alpha (0-100) a string 'rgba(R,G,B,A)' */
+  private _rgbToRgbaString(rgb: [number, number, number], alpha: number): string {
+    const a = (alpha / 100).toFixed(2);
+    return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${a})`;
+  }
+
   private _styleSchema(preset: string) {
     const schema: any[] = [
       {
@@ -104,8 +127,16 @@ export class StyledStackCardEditor extends LitElement {
 
     if (preset === 'custom') {
       schema.push(
-        { name: 'color_start', selector: { text: {} } },
-        { name: 'color_end', selector: { text: {} } },
+        { name: 'color_start_rgb', selector: { color_rgb: {} } },
+        {
+          name: 'color_start_alpha',
+          selector: { number: { min: 0, max: 100, step: 1, unit_of_measurement: '%' } },
+        },
+        { name: 'color_end_rgb', selector: { color_rgb: {} } },
+        {
+          name: 'color_end_alpha',
+          selector: { number: { min: 0, max: 100, step: 1, unit_of_measurement: '%' } },
+        },
         {
           name: 'angle',
           selector: { number: { min: 0, max: 360, step: 1, unit_of_measurement: '°' } },
@@ -118,10 +149,14 @@ export class StyledStackCardEditor extends LitElement {
 
   private _styleFormData() {
     const style = this._config.style_config || {};
+    const startParsed = this._parseRgbaString(style.color_start || 'rgba(128,128,128,0.25)');
+    const endParsed = this._parseRgbaString(style.color_end || 'rgba(30,30,30,0)');
     return {
       preset: style.preset || 'custom',
-      color_start: style.color_start || '',
-      color_end: style.color_end || '',
+      color_start_rgb: startParsed.rgb,
+      color_start_alpha: startParsed.alpha,
+      color_end_rgb: endParsed.rgb,
+      color_end_alpha: endParsed.alpha,
       angle: style.angle ?? 135,
     };
   }
@@ -135,8 +170,14 @@ export class StyledStackCardEditor extends LitElement {
         preset: value.preset,
         ...(value.preset === 'custom'
           ? {
-            color_start: value.color_start,
-            color_end: value.color_end,
+            color_start: this._rgbToRgbaString(
+              value.color_start_rgb ?? [128, 128, 128],
+              value.color_start_alpha ?? 25
+            ),
+            color_end: this._rgbToRgbaString(
+              value.color_end_rgb ?? [30, 30, 30],
+              value.color_end_alpha ?? 0
+            ),
             angle: value.angle,
           }
           : {}),
@@ -147,8 +188,10 @@ export class StyledStackCardEditor extends LitElement {
   private _computeStyleLabel = (schema: { name: string }) => {
     const labels: Record<string, string> = {
       preset: 'Tema visual',
-      color_start: 'Color superior',
-      color_end: 'Color inferior',
+      color_start_rgb: 'Color superior',
+      color_start_alpha: 'Opacidad color superior',
+      color_end_rgb: 'Color inferior',
+      color_end_alpha: 'Opacidad color inferior',
       angle: 'Ángulo del degradado',
     };
     return labels[schema.name] || schema.name;
