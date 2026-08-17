@@ -72,7 +72,6 @@ export class StyledStackCardEditor extends LitElement {
   }
 
   protected async firstUpdated() {
-    // Aseguramos la existencia de elementos web necesarios para la edición
     if (StyledStackCard && (StyledStackCard as any).ensureHaEditorElements) {
       await (StyledStackCard as any).ensureHaEditorElements();
     }
@@ -91,7 +90,6 @@ export class StyledStackCardEditor extends LitElement {
 
   // --- Helpers de conversión rgba <-> [R,G,B] + alpha ---
 
-  /** Parsea 'rgba(R,G,B,A)' o 'rgb(R,G,B)' a { rgb: [R,G,B], alpha: number (0-100) } */
   private _parseRgbaString(value: string): { rgb: [number, number, number]; alpha: number } {
     const match = value.match(
       /rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)(?:\s*,\s*([\d.]+))?\s*\)/
@@ -106,14 +104,27 @@ export class StyledStackCardEditor extends LitElement {
     return { rgb: [128, 128, 128], alpha: 100 };
   }
 
-  /** Convierte [R,G,B] + alpha (0-100) a string 'rgba(R,G,B,A)' */
   private _rgbToRgbaString(rgb: [number, number, number], alpha: number): string {
     const a = (alpha / 100).toFixed(2);
     return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${a})`;
   }
 
-  private _styleSchema(preset: string) {
-    const schema: any[] = [
+  private _getStyleData() {
+    const style = this._config.style_config || {};
+    const startParsed = this._parseRgbaString(style.color_start || 'rgba(128,128,128,0.25)');
+    const endParsed = this._parseRgbaString(style.color_end || 'rgba(30,30,30,0)');
+    return {
+      preset: style.preset || 'custom',
+      color_start_rgb: startParsed.rgb,
+      color_start_alpha: startParsed.alpha,
+      color_end_rgb: endParsed.rgb,
+      color_end_alpha: endParsed.alpha,
+      angle: Number(style.angle ?? 135),
+    };
+  }
+
+  private _presetSchema() {
+    return [
       {
         name: 'preset',
         selector: {
@@ -124,78 +135,122 @@ export class StyledStackCardEditor extends LitElement {
         },
       },
     ];
-
-    if (preset === 'custom') {
-      schema.push(
-        { name: 'color_start_rgb', selector: { color_rgb: {} } },
-        {
-          name: 'color_start_alpha',
-          selector: { number: { min: 0, max: 100, step: 1, unit_of_measurement: '%' } },
-        },
-        { name: 'color_end_rgb', selector: { color_rgb: {} } },
-        {
-          name: 'color_end_alpha',
-          selector: { number: { min: 0, max: 100, step: 1, unit_of_measurement: '%' } },
-        },
-        {
-          name: 'angle',
-          selector: { number: { min: 0, max: 360, step: 1, unit_of_measurement: '°' } },
-        }
-      );
-    }
-
-    return schema;
   }
 
-  private _styleFormData() {
-    const style = this._config.style_config || {};
-    const startParsed = this._parseRgbaString(style.color_start || 'rgba(128,128,128,0.25)');
-    const endParsed = this._parseRgbaString(style.color_end || 'rgba(30,30,30,0)');
-    return {
-      preset: style.preset || 'custom',
-      color_start_rgb: startParsed.rgb,
-      color_start_alpha: startParsed.alpha,
-      color_end_rgb: endParsed.rgb,
-      color_end_alpha: endParsed.alpha,
-      angle: style.angle ?? 135,
-    };
+  private _angleSchema() {
+    return [
+      {
+        name: 'angle',
+        selector: { number: { min: 0, max: 360, step: 1, unit_of_measurement: '°' } },
+      },
+    ];
   }
 
-  private _handleStyleChanged(ev: CustomEvent) {
+  private _handlePresetChanged(ev: CustomEvent) {
     ev.stopPropagation();
-    const value = ev.detail.value;
+    const newPreset = ev.detail.value.preset;
+    const current = this._config.style_config || {};
+    this._updateConfig({
+      ...this._config,
+      style_config: { ...current, preset: newPreset },
+    });
+  }
+
+  private _handleAngleChanged(ev: CustomEvent) {
+    ev.stopPropagation();
+    const newAngle = ev.detail.value.angle;
+    const current = this._config.style_config || {};
+    this._updateConfig({
+      ...this._config,
+      style_config: { ...current, angle: newAngle },
+    });
+  }
+
+  private _handleColorChange(
+    field: 'color_start' | 'color_end',
+    rgb: [number, number, number],
+    alpha: number
+  ) {
+    const current = this._config.style_config || {};
     this._updateConfig({
       ...this._config,
       style_config: {
-        preset: value.preset,
-        ...(value.preset === 'custom'
-          ? {
-            color_start: this._rgbToRgbaString(
-              value.color_start_rgb ?? [128, 128, 128],
-              value.color_start_alpha ?? 25
-            ),
-            color_end: this._rgbToRgbaString(
-              value.color_end_rgb ?? [30, 30, 30],
-              value.color_end_alpha ?? 0
-            ),
-            angle: value.angle,
-          }
-          : {}),
+        ...current,
+        [field]: this._rgbToRgbaString(rgb, alpha),
       },
     });
   }
 
-  private _computeStyleLabel = (schema: { name: string }) => {
-    const labels: Record<string, string> = {
-      preset: 'Tema visual',
-      color_start_rgb: 'Color superior',
-      color_start_alpha: 'Opacidad color superior',
-      color_end_rgb: 'Color inferior',
-      color_end_alpha: 'Opacidad color inferior',
-      angle: 'Ángulo del degradado',
-    };
-    return labels[schema.name] || schema.name;
-  };
+  private _handleColorRgbChanged(ev: CustomEvent, field: 'color_start' | 'color_end') {
+    ev.stopPropagation();
+    const data = this._getStyleData();
+    const newRgb = ev.detail.value as [number, number, number];
+    const alpha = field === 'color_start' ? data.color_start_alpha : data.color_end_alpha;
+    this._handleColorChange(field, newRgb, alpha);
+  }
+
+  private _handleAlphaChanged(ev: Event, field: 'color_start' | 'color_end') {
+    const input = ev.target as HTMLInputElement;
+    const alpha = parseInt(input.value, 10);
+    const data = this._getStyleData();
+    const rgb = field === 'color_start' ? data.color_start_rgb : data.color_end_rgb;
+    this._handleColorChange(field, rgb, alpha);
+  }
+
+  private _computePresetLabel = (schema: { name: string }) =>
+    schema.name === 'preset' ? 'Tema visual' : schema.name;
+
+  private _computeAngleLabel = (schema: { name: string }) =>
+    schema.name === 'angle' ? 'Ángulo del degradado' : schema.name;
+
+  private _renderColorRow(
+    label: string,
+    field: 'color_start' | 'color_end',
+    rgb: [number, number, number],
+    alpha: number
+  ) {
+    const solidColor = `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
+    const previewColor = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${(alpha / 100).toFixed(2)})`;
+    // Gradiente del slider de alpha: checker + gradiente de color encima
+    const alphaTrack = `linear-gradient(to right, transparent, ${solidColor})`;
+
+    return html`
+      <div class="color-row">
+        <div class="color-row-header">
+          <span class="color-row-label">${label}</span>
+          <div class="color-swatch-wrap">
+            <div class="checker-bg"></div>
+            <div class="color-swatch" style="background:${previewColor}"></div>
+          </div>
+        </div>
+        <div class="color-row-body">
+          <ha-selector
+            .hass=${this._hass}
+            .selector=${{ color_rgb: {} }}
+            .value=${rgb}
+            @value-changed=${(e: CustomEvent) => this._handleColorRgbChanged(e, field)}
+          ></ha-selector>
+          <div class="alpha-row">
+            <span class="alpha-label">Opacidad</span>
+            <div class="alpha-slider-wrap">
+              <div class="alpha-track" style="--alpha-gradient:${alphaTrack}"></div>
+              <input
+                type="range"
+                class="alpha-slider"
+                min="0"
+                max="100"
+                step="1"
+                .value=${String(alpha)}
+                @input=${(e: Event) => this._handleAlphaChanged(e, field)}
+                @change=${(e: Event) => this._handleAlphaChanged(e, field)}
+              />
+            </div>
+            <span class="alpha-value">${alpha}%</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
 
   private _handleSelectedCard(ev: CustomEvent) {
     this._selectedCard = parseInt(ev.detail.name, 10);
@@ -205,7 +260,6 @@ export class StyledStackCardEditor extends LitElement {
     ev.stopPropagation();
     const newCardConfig = ev.detail?.config;
     if (!newCardConfig) return;
-
     const cards = [...(this._config.cards || []), newCardConfig];
     this._updateConfig({ ...this._config, cards });
     this._selectedCard = cards.length - 1;
@@ -214,7 +268,6 @@ export class StyledStackCardEditor extends LitElement {
   private _handleCardConfigChanged(ev: CustomEvent) {
     ev.stopPropagation();
     if (!this._config.cards) return;
-
     const cards = [...this._config.cards];
     cards[this._selectedCard] = ev.detail.config;
     this._updateConfig({ ...this._config, cards });
@@ -240,7 +293,6 @@ export class StyledStackCardEditor extends LitElement {
   private _handlePasteCard() {
     const clipboardCard = this._getClipboardCard();
     if (!clipboardCard) return;
-
     const cards = [...(this._config.cards || []), clipboardCard];
     this._updateConfig({ ...this._config, cards });
     this._selectedCard = cards.length - 1;
@@ -282,7 +334,6 @@ export class StyledStackCardEditor extends LitElement {
     if (!this._config.cards) return;
     const target = this._selectedCard + direction;
     if (target < 0 || target >= this._config.cards.length) return;
-
     const cards = [...this._config.cards];
     const [card] = cards.splice(this._selectedCard, 1);
     cards.splice(target, 0, card);
@@ -293,47 +344,74 @@ export class StyledStackCardEditor extends LitElement {
   render() {
     if (!this._config || !this._hass) return nothing;
 
-    const style = this._config.style_config || {};
-    const preset = style.preset || 'custom';
+    const data = this._getStyleData();
+    const preset = data.preset;
     const cards = this._config.cards || [];
     const selected = this._selectedCard;
     const numCards = cards.length;
     const isAdding = selected >= numCards;
     const hasClipboard = this._getClipboardCard() !== null;
 
+    const gradientPreview = preset === 'custom'
+      ? `linear-gradient(${data.angle}deg, ${this._rgbToRgbaString(data.color_start_rgb, data.color_start_alpha)} 0%, ${this._rgbToRgbaString(data.color_end_rgb, data.color_end_alpha)} 100%)`
+      : '';
+
     return html`
       <div class="card-config">
-        <!-- FORMULARIO DE ESTILOS Y TEMAS -->
+
+        <!-- SELECTOR DE PRESET -->
         <ha-form
           .hass=${this._hass}
-          .data=${this._styleFormData()}
-          .schema=${this._styleSchema(preset)}
-          .computeLabel=${this._computeStyleLabel}
-          @value-changed=${this._handleStyleChanged}
+          .data=${{ preset }}
+          .schema=${this._presetSchema()}
+          .computeLabel=${this._computePresetLabel}
+          @value-changed=${this._handlePresetChanged}
         ></ha-form>
+
+        <!-- SECCIÓN DE COLORES MANUALES -->
+        ${preset === 'custom' ? html`
+          <div class="gradient-section">
+
+            <div class="gradient-preview-wrap">
+              <div class="gradient-preview" style="background:${gradientPreview}"></div>
+              <div class="gradient-preview-label">Vista previa del degradado</div>
+            </div>
+
+            ${this._renderColorRow('Color superior', 'color_start', data.color_start_rgb, data.color_start_alpha)}
+            ${this._renderColorRow('Color inferior', 'color_end', data.color_end_rgb, data.color_end_alpha)}
+
+            <ha-form
+              .hass=${this._hass}
+              .data=${{ angle: data.angle }}
+              .schema=${this._angleSchema()}
+              .computeLabel=${this._computeAngleLabel}
+              @value-changed=${this._handleAngleChanged}
+            ></ha-form>
+          </div>
+        ` : nothing}
 
         <!-- BARRA DE PESTAÑAS Y NAVEGACIÓN -->
         <div class="toolbar">
           <ha-tab-group .active=${String(selected)} @tab-changed=${this._handleSelectedCard}>
             ${cards.map(
-      (_card, i) => html`
+              (_card, i) => html`
                 <ha-tab-group-tab .active=${selected === i} .name=${String(i)}>
                   ${i + 1}
                 </ha-tab-group-tab>
               `
-    )}
+            )}
             <ha-tab-group-tab .active=${isAdding} .name=${String(numCards)}>
               <ha-icon .path=${mdiPlus}></ha-icon>
             </ha-tab-group-tab>
           </ha-tab-group>
         </div>
 
-        <!-- CONTENIDO DEL EDITOR SEGÚN ESTADO DE NAVEGACIÓN -->
+        <!-- CONTENIDO DEL EDITOR -->
         ${isAdding
-        ? html`
+          ? html`
               <div id="editor">
                 ${hasClipboard
-            ? html`
+                  ? html`
                       <div class="paste-bar">
                         <button class="btn-paste" @click=${this._handlePasteCard}>
                           <ha-icon .path=${mdiContentPaste}></ha-icon>
@@ -341,7 +419,7 @@ export class StyledStackCardEditor extends LitElement {
                         </button>
                       </div>
                     `
-            : nothing}
+                  : nothing}
                 <hui-card-picker
                   .hass=${this._hass}
                   .lovelace=${this._effectiveLovelace}
@@ -349,9 +427,8 @@ export class StyledStackCardEditor extends LitElement {
                 ></hui-card-picker>
               </div>
             `
-        : numCards > 0
-          ? html`
-                <!-- BOTONES DE ACCIÓN PARA LA TARJETA SELECCIONADA -->
+          : numCards > 0
+            ? html`
                 <div id="card-options">
                   <ha-icon-button
                     .path=${mdiChevronLeft}
@@ -382,7 +459,6 @@ export class StyledStackCardEditor extends LitElement {
                   ></ha-icon-button>
                 </div>
 
-                <!-- EDITOR DE LA TARJETA SELECCIONADA -->
                 <div id="editor">
                   <hui-card-element-editor
                     .hass=${this._hass}
@@ -392,7 +468,7 @@ export class StyledStackCardEditor extends LitElement {
                   ></hui-card-element-editor>
                 </div>
               `
-          : nothing}
+            : nothing}
       </div>
     `;
   }
@@ -403,15 +479,189 @@ export class StyledStackCardEditor extends LitElement {
         .card-config {
           overflow: auto;
         }
+
         ha-form {
           display: block;
+        }
+
+        /* ── Sección de colores manuales ── */
+        .gradient-section {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          margin-top: 2px;
           margin-bottom: 16px;
         }
+
+        /* Barra de preview del degradado */
+        .gradient-preview-wrap {
+          border-radius: 10px;
+          overflow: hidden;
+          border: 1px solid var(--divider-color);
+        }
+        .gradient-preview {
+          height: 56px;
+          width: 100%;
+          transition: background 0.35s ease;
+        }
+        .gradient-preview-label {
+          font-size: 0.72em;
+          color: var(--secondary-text-color);
+          text-align: center;
+          padding: 4px 0;
+          background: var(--secondary-background-color);
+          letter-spacing: 0.03em;
+        }
+
+        /* ── Fila de color ── */
+        .color-row {
+          background: var(--secondary-background-color);
+          border: 1px solid var(--divider-color);
+          border-radius: 10px;
+          overflow: hidden;
+        }
+        .color-row-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 10px 14px 8px;
+          border-bottom: 1px solid var(--divider-color);
+        }
+        .color-row-label {
+          font-size: 0.85em;
+          font-weight: 600;
+          color: var(--primary-text-color);
+          letter-spacing: 0.02em;
+        }
+
+        /* Swatch circular con patrón de ajedrez para transparencia */
+        .color-swatch-wrap {
+          position: relative;
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+          overflow: hidden;
+          border: 2px solid var(--divider-color);
+          flex-shrink: 0;
+          box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+        }
+        .checker-bg {
+          position: absolute;
+          inset: 0;
+          background-image:
+            linear-gradient(45deg, #aaa 25%, transparent 25%),
+            linear-gradient(-45deg, #aaa 25%, transparent 25%),
+            linear-gradient(45deg, transparent 75%, #aaa 75%),
+            linear-gradient(-45deg, transparent 75%, #aaa 75%);
+          background-color: #fff;
+          background-size: 7px 7px;
+          background-position: 0 0, 0 3.5px, 3.5px -3.5px, -3.5px 0;
+        }
+        .color-swatch {
+          position: absolute;
+          inset: 0;
+          transition: background 0.2s ease;
+        }
+
+        .color-row-body {
+          padding: 12px 14px;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        ha-selector {
+          display: block;
+        }
+
+        /* ── Slider de opacidad ── */
+        .alpha-row {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+        .alpha-label {
+          font-size: 0.78em;
+          color: var(--secondary-text-color);
+          white-space: nowrap;
+          min-width: 54px;
+        }
+        .alpha-slider-wrap {
+          position: relative;
+          flex: 1;
+          height: 20px;
+          display: flex;
+          align-items: center;
+        }
+        /* Pista: checker base + overlay con el gradiente de color */
+        .alpha-track {
+          position: absolute;
+          left: 0;
+          right: 0;
+          height: 8px;
+          border-radius: 4px;
+          pointer-events: none;
+          /* checker base */
+          background-image:
+            linear-gradient(45deg, #bbb 25%, transparent 25%),
+            linear-gradient(-45deg, #bbb 25%, transparent 25%),
+            linear-gradient(45deg, transparent 75%, #bbb 75%),
+            linear-gradient(-45deg, transparent 75%, #bbb 75%),
+            var(--alpha-gradient, linear-gradient(to right, transparent, grey));
+          background-color: #fff;
+          background-size: 8px 8px, 8px 8px, 8px 8px, 8px 8px, 100% 100%;
+          background-position: 0 0, 0 4px, 4px -4px, -4px 0, 0 0;
+        }
+        .alpha-slider {
+          position: relative;
+          width: 100%;
+          height: 8px;
+          -webkit-appearance: none;
+          appearance: none;
+          background: transparent;
+          cursor: pointer;
+          z-index: 1;
+        }
+        .alpha-slider::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          background: var(--card-background-color, #fff);
+          border: 2.5px solid var(--primary-color);
+          box-shadow: 0 1px 5px rgba(0,0,0,0.28);
+          cursor: pointer;
+          transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .alpha-slider::-webkit-slider-thumb:hover {
+          transform: scale(1.18);
+          box-shadow: 0 2px 9px rgba(0,0,0,0.32);
+        }
+        .alpha-slider::-moz-range-thumb {
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          background: var(--card-background-color, #fff);
+          border: 2.5px solid var(--primary-color);
+          box-shadow: 0 1px 5px rgba(0,0,0,0.28);
+          cursor: pointer;
+        }
+        .alpha-value {
+          font-size: 0.8em;
+          font-weight: 600;
+          color: var(--primary-text-color);
+          min-width: 34px;
+          text-align: right;
+        }
+
+        /* ── Toolbar y editor de tarjetas ── */
         .toolbar {
           display: flex;
           justify-content: space-between;
           align-items: center;
           margin-bottom: 8px;
+          margin-top: 4px;
         }
         ha-tab-group {
           flex-grow: 1;
