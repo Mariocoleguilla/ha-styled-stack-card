@@ -345,3 +345,5 @@ https://github.com/Mariocoleguilla
 If Styled Stack Card makes your dashboards cleaner or easier to maintain, consider giving the repository a **star** on GitHub.
 
 It helps other Home Assistant users discover the project and motivates future development.
+
+https://www.paypal.com/donate/?hosted_button_id=C6T54AXECTX9L
