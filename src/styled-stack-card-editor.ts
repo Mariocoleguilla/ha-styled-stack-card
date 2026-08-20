@@ -33,7 +33,7 @@ interface StyledStackConfig extends LovelaceCardConfig {
 const PRESET_OPTIONS = [
   { value: 'custom', label: 'Colores manuales' },
   { value: 'spotify', label: 'Spotify' },
-  { value: 'lights', label: 'Luces cálidas' },
+  { value: 'lights', label: 'Luces' },
   { value: 'water', label: 'Agua / Baño' },
   { value: 'alert', label: 'Alerta' },
 ];
@@ -197,8 +197,8 @@ export class StyledStackCardEditor extends LitElement {
     const newRgb = ev.detail.value as [number, number, number];
     const alpha =
       field === 'color_start' ? data.color_start_alpha
-      : field === 'color_mid' ? data.color_mid_alpha
-      : data.color_end_alpha;
+        : field === 'color_mid' ? data.color_mid_alpha
+          : data.color_end_alpha;
     this._handleColorChange(field, newRgb, alpha);
   }
 
@@ -208,8 +208,8 @@ export class StyledStackCardEditor extends LitElement {
     const data = this._getStyleData();
     const rgb =
       field === 'color_start' ? data.color_start_rgb
-      : field === 'color_mid' ? data.color_mid_rgb
-      : data.color_end_rgb;
+        : field === 'color_mid' ? data.color_mid_rgb
+          : data.color_end_rgb;
     this._handleColorChange(field, rgb, alpha);
   }
 
@@ -456,14 +456,14 @@ export class StyledStackCardEditor extends LitElement {
 
             <!-- Color medio (opcional) -->
             ${data.has_mid
-              ? this._renderColorRow('Color medio', 'color_mid', data.color_mid_rgb, data.color_mid_alpha, { removable: true, midPos: data.color_mid_pos })
-              : html`
+          ? this._renderColorRow('Color medio', 'color_mid', data.color_mid_rgb, data.color_mid_alpha, { removable: true, midPos: data.color_mid_pos })
+          : html`
                 <button class="btn-add-mid" @click=${this._toggleMidColor}>
                   <span class="btn-add-mid-icon">+</span>
                   Añadir color intermedio
                 </button>
               `
-            }
+        }
 
             ${this._renderColorRow('Color inferior', 'color_end', data.color_end_rgb, data.color_end_alpha)}
 
@@ -481,12 +481,12 @@ export class StyledStackCardEditor extends LitElement {
         <div class="toolbar">
           <ha-tab-group .active=${String(selected)} @tab-changed=${this._handleSelectedCard}>
             ${cards.map(
-              (_card, i) => html`
+          (_card, i) => html`
                 <ha-tab-group-tab .active=${selected === i} .name=${String(i)}>
                   ${i + 1}
                 </ha-tab-group-tab>
               `
-            )}
+        )}
             <ha-tab-group-tab .active=${isAdding} .name=${String(numCards)}>
               <ha-icon .path=${mdiPlus}></ha-icon>
             </ha-tab-group-tab>
@@ -495,10 +495,10 @@ export class StyledStackCardEditor extends LitElement {
 
         <!-- CONTENIDO DEL EDITOR -->
         ${isAdding
-          ? html`
+        ? html`
               <div id="editor">
                 ${hasClipboard
-                  ? html`
+            ? html`
                       <div class="paste-bar">
                         <button class="btn-paste" @click=${this._handlePasteCard}>
                           <ha-icon .path=${mdiContentPaste}></ha-icon>
@@ -506,7 +506,7 @@ export class StyledStackCardEditor extends LitElement {
                         </button>
                       </div>
                     `
-                  : nothing}
+            : nothing}
                 <hui-card-picker
                   .hass=${this._hass}
                   .lovelace=${this._effectiveLovelace}
@@ -514,8 +514,8 @@ export class StyledStackCardEditor extends LitElement {
                 ></hui-card-picker>
               </div>
             `
-          : numCards > 0
-            ? html`
+        : numCards > 0
+          ? html`
                 <div id="card-options">
                   <ha-icon-button
                     .path=${mdiChevronLeft}
@@ -555,7 +555,7 @@ export class StyledStackCardEditor extends LitElement {
                   ></hui-card-element-editor>
                 </div>
               `
-            : nothing}
+          : nothing}
       </div>
     `;
   }
