@@ -6,6 +6,8 @@ interface StyledStackConfig extends LovelaceCardConfig {
   style_config?: {
     preset?: string;
     color_start?: string;
+    color_mid?: string;
+    color_mid_pos?: number;
     color_end?: string;
     angle?: string | number;
     [key: string]: any;
@@ -142,6 +144,9 @@ export class StyledStackCard extends LitElement {
 
   static get styles() {
     return css`
+      :host {
+        display: block;
+      }
       ha-card {
         overflow: hidden;
         transition: all 0.3s ease-out;
@@ -151,6 +156,11 @@ export class StyledStackCard extends LitElement {
         flex-direction: column;
         gap: 8px;
         padding: 0;
+        --ha-card-background: none !important;
+        --card-background-color: transparent !important;
+        --ha-card-box-shadow: none !important;
+        --ha-card-border-width: 0px !important;
+        --ha-card-border-color: transparent !important;
       }
     `;
   }

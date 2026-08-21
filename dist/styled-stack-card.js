@@ -728,6 +728,9 @@ var StyledStackCard = class StyledStackCard extends i {
 	}
 	static get styles() {
 		return i$3`
+      :host {
+        display: block;
+      }
       ha-card {
         overflow: hidden;
         transition: all 0.3s ease-out;
@@ -737,6 +740,11 @@ var StyledStackCard = class StyledStackCard extends i {
         flex-direction: column;
         gap: 8px;
         padding: 0;
+        --ha-card-background: none !important;
+        --card-background-color: transparent !important;
+        --ha-card-box-shadow: none !important;
+        --ha-card-border-width: 0px !important;
+        --ha-card-border-color: transparent !important;
       }
     `;
 	}
