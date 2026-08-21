@@ -1,351 +1,184 @@
-# Styled Stack Card
-
 <p align="center">
-
-A powerful Home Assistant custom card that lets you apply a single style to an entire stack of cards.
-
-Perfect for creating beautiful dashboards without repeating the same `card_mod` configuration on every individual card.
-
+  <h1 align="center">🎨 Styled Stack Card</h1>
+  <p align="center">
+    A powerful Home Assistant custom card that lets you apply stunning gradient backgrounds and unified styling to an entire stack of cards.
+  </p>
 </p>
 
 <p align="center">
-
-![Home Assistant](https://img.shields.io/badge/Home%20Assistant-Custom%20Card-41BDF5?logo=homeassistant)
-![HACS](https://img.shields.io/badge/HACS-Custom%20Repository-orange)
-![License](https://img.shields.io/github/license/Mariocoleguilla/styled-stack-card)
-
+  <a href="https://github.com/hacs/default">
+    <img src="https://img.shields.io/badge/HACS-Custom-41BDF5.svg?style=for-the-badge&logo=homeassistant" alt="HACS Badge">
+  </a>
+  <a href="https://github.com/Mariocoleguilla/styled-stack-card/releases">
+    <img src="https://img.shields.io/github/v/release/Mariocoleguilla/styled-stack-card?style=for-the-badge&color=orange" alt="Release">
+  </a>
+  <a href="https://github.com/Mariocoleguilla/styled-stack-card/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/Mariocoleguilla/styled-stack-card?style=for-the-badge&color=blue" alt="License">
+  </a>
 </p>
 
-<img width="499" height="505" alt="Captura de pantalla 2026-08-21 a las 12 09 21" src="https://github.com/user-attachments/assets/de6dfa27-ac8e-4009-b35f-9485692eda87" /> <img width="498" height="132" alt="image" src="https://github.com/user-attachments/assets/db5f1354-2227-4a12-91e1-ef97ff50a933" /> <img width="502" height="444" alt="image" src="https://github.com/user-attachments/assets/1cd99de6-1a1f-4745-a452-23c3f4ec9a07" /> <img width="500" height="243" alt="image" src="https://github.com/user-attachments/assets/af9e57ce-244d-41a8-b204-2baf70d9679a" /> <img width="498" height="181" alt="image" src="https://github.com/user-attachments/assets/af17a14c-3181-4256-9bf0-64d389bfbd6b" />
+---
+
+## 📸 Screenshots & Showcase
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/de6dfa27-ac8e-4009-b35f-9485692eda87" alt="Styled Stack Card Showcase" width="48%" style="border-radius: 8px; margin: 4px;" />
+  <img src="https://github.com/user-attachments/assets/1cd99de6-1a1f-4745-a452-23c3f4ec9a07" alt="Visual Editor Overview" width="48%" style="border-radius: 8px; margin: 4px;" />
+</p>
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/db5f1354-2227-4a12-91e1-ef97ff50a933" alt="Presets and Color Controls" width="48%" style="border-radius: 8px; margin: 4px;" />
+  <img src="https://github.com/user-attachments/assets/af9e57ce-244d-41a8-b204-2baf70d9679a" alt="Color Picker & Alpha Sliders" width="48%" style="border-radius: 8px; margin: 4px;" />
+</p>
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/af17a14c-3181-4256-9bf0-64d389bfbd6b" alt="Clipboard & Tab Controls" width="60%" style="border-radius: 8px; margin: 4px;" />
+</p>
 
 ---
 
-## Why Styled Stack Card?
+## 💡 Why Styled Stack Card?
 
-When designing dashboards in Home Assistant, it's common to group several cards together inside a `vertical-stack` or `horizontal-stack`.
+When designing dashboards in Home Assistant, it's common to group several cards together inside a stack container.
 
-Unfortunately, those stack cards don't have their own `ha-card`, meaning they can't easily be styled as a single component.
+Unfortunately, standard stack cards don't have their own `ha-card` background, meaning they can't easily be styled as a single component with gradients or custom themes.
 
-As a result, developers often have to repeat the same CSS over every child card using `card-mod`, making configurations verbose and difficult to maintain. :contentReference[oaicite:0]{index=0}
-
-Styled Stack Card solves this by providing a real container card with its own styling, while automatically rendering any stack of Lovelace cards inside it.
+**Styled Stack Card** solves this by providing a real container card with aesthetic custom gradient options and seamless card transparency, while automatically rendering any stack of Lovelace cards inside it.
 
 ---
 
-# Features
+## ✨ Features
 
-- 🎨 Apply one style to an entire stack
-- 📦 Supports any Lovelace card
-- 📱 Responsive
-- 🌙 Theme-aware
-- ⚡ Lightweight
-- 🧩 Full Visual Editor support
-- 🖱 Live preview while editing
-- 🔄 Vertical and horizontal layouts
-- ❤️ Works with card-mod
-- 🚀 Built with Lit and TypeScript
+- 🌈 **Up to 3-Color Gradients**: Configure custom start, middle (optional), and end colors with custom angle (0° - 360°).
+- 🎨 **Native Color Pickers**: Custom aesthetic color pickers with opacity/alpha sliders and live gradient preview.
+- 📋 **Clipboard Integration**: Easily copy, cut, and **paste cards directly from your dashboard clipboard**.
+- 🛠 **Full Visual Editor**: Tabbed card navigation with quick reordering (move left/right), duplicate, and delete actions.
+- 🔮 **Automatic Card Transparency**: Child cards automatically blend into the background gradient without needing a transparent HA theme.
+- 🌟 **Built-in Presets**: Quick-select popular themes (Spotify, Warm Lights, Water, Alert).
+- 📦 **Supports Any Lovelace Card**: Mushroom, Tile, Entities, Button, ApexCharts, Bubble Card, and custom cards.
+- ⚡ **Lightweight & Fast**: Built with Lit & TypeScript for maximum performance.
 
 ---
 
-# Installation
+## 🛠 Visual Editor Features
 
-## HACS (recommended)
+Styled Stack Card includes a full-featured Home Assistant Visual Editor:
 
-1. Open **HACS**
-2. Go to **Frontend**
-3. Click **⋮ → Custom repositories**
-4. Add
+### 🎨 Gradient & Preset Configuration
+- Choose built-in presets or **Custom Colors**.
+- Configure **up to 3 gradient color stops** (Start, Middle with custom position %, and End).
+- Per-color opacity/alpha sliders (0–100%) with live visual swatches.
+- Adjustable gradient angle (0° to 360°).
+- Real-time gradient preview bar inside the editor.
 
-```
-https://github.com/Mariocoleguilla/styled-stack-card
-```
-
-Category:
-
-```
-Dashboard
-```
-
-Install the card.
-
-Restart Home Assistant.
+### 📋 Card Management & Clipboard
+- **Tab Navigation**: Easily switch between child cards in the editor stack.
+- **Paste from Clipboard**: Paste cards previously copied in your Lovelace dashboard with a single click.
+- **Card Actions**: Move cards left/right, Copy, Cut, or Delete with toolbar action buttons.
+- **Card Picker**: Built-in Home Assistant card picker to add any card directly.
 
 ---
 
-## Manual installation
+## ⚙️ Configuration
 
-Download the latest release.
-
-Copy
-
-```
-styled-stack-card.js
-```
-
-into
-
-```
-config/www/
-```
-
-Add the resource
-
-```yaml
-resources:
-  - url: /local/styled-stack-card.js
-    type: module
-```
-
-Restart Home Assistant.
-
----
-
-# Basic example
+### YAML Example
 
 ```yaml
 type: custom:styled-stack-card
-style: |
-  ha-card {
-    border-radius: 20px;
-    padding: 12px;
-    background: var(--ha-card-background);
-  }
-
+style_config:
+  preset: custom                  # Options: custom, spotify, lights, water, alert
+  color_start: rgba(29, 185, 84, 0.3)
+  color_mid: rgba(100, 50, 200, 0.2)  # Optional 3rd color
+  color_mid_pos: 50                 # Position of middle color (1-99%)
+  color_end: rgba(30, 30, 30, 0)
+  angle: 135                        # Gradient angle in degrees
 cards:
-  - type: entities
-    entities:
-      - light.kitchen
-
-  - type: button
-    entity: switch.coffee
-```
-
----
-
-# Styling
-
-Any CSS that can normally be applied to a `ha-card` can be used.
-
-Example
-
-```yaml
-style: |
-  ha-card {
-    border-radius: 24px;
-    padding: 20px;
-    background: rgba(0,0,0,.25);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(255,255,255,.1);
-  }
-```
-
----
-
-# Works with any card
-
-Examples include
-
-- Entities
-- Button
-- Tile
-- Gauge
-- History Graph
-- Markdown
-- Picture
-- Mushroom Cards
-- Bubble Card
-- ApexCharts
-- Mini Graph Card
-- Any custom card
-
----
-
-# Visual Editor
-
-Styled Stack Card includes a native Home Assistant Visual Editor.
-
-You can:
-
-- Add cards
-- Remove cards
-- Reorder cards
-- Edit the container style
-- Preview changes instantly
-
-No YAML knowledge is required.
-
----
-
-# Configuration
-
-| Option | Required | Description |
-|----------|----------|-------------|
-| `cards` | ✅ | Cards inside the stack |
-| `style` | ❌ | CSS applied to the container |
-| `mode` | ❌ | Vertical or horizontal layout (if supported) |
-
----
-
-# Examples
-
-## Rounded container
-
-```yaml
-type: custom:styled-stack-card
-
-style: |
-  ha-card {
-    border-radius: 24px;
-    overflow: hidden;
-  }
-
-cards:
-  ...
-```
-
----
-
-## Glassmorphism
-
-```yaml
-style: |
-  ha-card {
-    background: rgba(255,255,255,.08);
-    backdrop-filter: blur(18px);
-    border-radius: 18px;
-  }
-```
-
----
-
-## Remove all margins
-
-```yaml
-style: |
-  ha-card {
-    margin: 0;
-    padding: 0;
-  }
-```
-
----
-
-## Dashboard section
-
-```yaml
-type: custom:styled-stack-card
-
-style: |
-  ha-card {
-    padding: 16px;
-    border-radius: 18px;
-  }
-
-cards:
-  - type: heading
-    heading: Living Room
-
   - type: tile
     entity: light.living_room
-
   - type: tile
     entity: media_player.tv
 ```
 
----
+### Options Table
 
-# Compatibility
-
-Compatible with
-
-- Home Assistant Dashboard
-- card-mod
-- Mushroom Cards
-- Bubble Card
-- Sections Dashboard
-- Masonry Dashboard
-
----
-
-# Frequently Asked Questions
-
-## Does it replace vertical-stack?
-
-No.
-
-It wraps a stack while providing a stylable container.
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `cards` | `array` | `[]` | List of Lovelace cards inside the stack |
+| `style_config.preset` | `string` | `spotify` | Preset theme (`custom`, `spotify`, `lights`, `water`, `alert`) |
+| `style_config.color_start` | `string` | `rgba(128,128,128,0.25)` | Start color (supports `rgb()` / `rgba()`) |
+| `style_config.color_mid` | `string` | *Optional* | Optional 3rd middle color stop |
+| `style_config.color_mid_pos` | `number` | `50` | Middle color position percentage (1–99%) |
+| `style_config.color_end` | `string` | `rgba(30,30,30,0)` | End color (supports `rgb()` / `rgba()`) |
+| `style_config.angle` | `number` | `135` | Gradient angle in degrees (0–360°) |
 
 ---
 
-## Does it modify child cards?
+## 🚀 Installation
 
-No.
+### HACS (recommended)
 
-Each child card behaves exactly as before.
-
----
-
-## Can I use card-mod?
-
-Yes.
-
-Styled Stack Card works perfectly alongside card-mod.
-
----
-
-## Does it affect performance?
-
-The card is extremely lightweight and only adds a minimal wrapper around the child cards.
+1. Open **HACS** in Home Assistant.
+2. Go to **Frontend** → Click **⋮ → Custom repositories**.
+3. Add Repository URL:
+   ```
+   https://github.com/Mariocoleguilla/styled-stack-card
+   ```
+   Category:
+   ```
+   Dashboard
+   ```
+4. Click **Install** and reload your browser dashboard.
 
 ---
 
-# Roadmap
+### Manual Installation
 
-Future ideas
-
-- Animations
-- Collapsible stacks
-- Conditional styling
-- Presets
-- Theme variables editor
-- CSS helper UI
-- Export/import styles
+1. Download `styled-stack-card.js` from the [Latest Release](https://github.com/Mariocoleguilla/styled-stack-card/releases).
+2. Copy `styled-stack-card.js` into your `config/www/` folder.
+3. Register the resource in **Settings → Dashboards → Resources**:
+   ```yaml
+   url: /local/styled-stack-card.js
+   type: module
+   ```
 
 ---
 
-# Contributing
+## 🧩 Works With Any Card
 
-Pull Requests and feature suggestions are always welcome.
-
-If you've found a bug, please open an Issue with:
-
-- Home Assistant version
-- Browser
-- YAML configuration
-- Screenshots
+Compatible with all standard and custom Home Assistant cards:
+- **Tile Card** & **Mushroom Cards**
+- **Bubble Card** & **custom:button-card**
+- **Entities**, **Entity**, **Button**, & **Glance Cards**
+- **Gauge**, **History Graph**, & **Markdown Cards**
+- **Mini Graph Card** & **ApexCharts**
 
 ---
 
-# License
+## ❓ Frequently Asked Questions
 
-MIT License
+#### Does it require a transparent Home Assistant theme?
+No! Child cards automatically inherit background transparency inside `styled-stack-card`, allowing the gradient to shine through on any default or custom theme while keeping card borders visible.
 
----
+#### Can I add 3 colors to the gradient?
+Yes! In the visual editor under "Colores manuales", click **"Añadir color intermedio"** to enable a 3rd color stop with a position slider.
 
-# Author
-
-Mario Coleguilla
-
-GitHub
-
-https://github.com/Mariocoleguilla
+#### How does the Clipboard function work?
+When you copy or cut a card in the editor, or copy a card from your dashboard, click **"Pegar tarjeta del portapapeles"** inside the editor to insert it into the stack instantly.
 
 ---
 
-## ⭐ Support the project
+## 📄 License
 
-If Styled Stack Card makes your dashboards cleaner or easier to maintain, consider giving the repository a **star** on GitHub.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-It helps other Home Assistant users discover the project and motivates future development.
+---
 
-https://www.paypal.com/donate/?hosted_button_id=C6T54AXECTX9L
+## ⭐ Support the Project
+
+If Styled Stack Card makes your dashboards cleaner or easier to maintain, consider giving the repository a **star** on GitHub!
+
+<p align="center">
+  <a href="https://www.paypal.com/donate/?hosted_button_id=C6T54AXECTX9L">
+    <img src="https://img.shields.io/badge/Donate-PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white" alt="Donate via PayPal" />
+  </a>
+</p>
