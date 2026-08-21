@@ -689,10 +689,10 @@ var StyledStackCard = class StyledStackCard extends i {
 	getGradientStyle() {
 		var _this$config;
 		const style = ((_this$config = this.config) === null || _this$config === void 0 ? void 0 : _this$config.style_config) || {};
-		if (style.preset === "spotify") return `linear-gradient(135deg, rgba(29, 185, 84, 0.25) 0%, rgba(30, 30, 30, 0) 100%)`;
-		if (style.preset === "lights") return `linear-gradient(135deg, rgba(255, 204, 0, 0.25) 0%, rgba(30, 30, 30, 0) 100%)`;
-		if (style.preset === "water") return `linear-gradient(135deg, rgba(3, 169, 244, 0.25) 0%, rgba(30, 30, 30, 0) 100%)`;
-		if (style.preset === "alert") return `linear-gradient(135deg, rgba(244, 67, 54, 0.25) 0%, rgba(30, 30, 30, 0) 100%)`;
+		if (style.preset === "spotify") return `linear-gradient(135deg, rgba(17, 255, 0, 0.60) 0%, rgba(22, 119, 9, 0.60) 50%, rgba(0, 0, 0, 0.60) 100%)`;
+		if (style.preset === "lights") return `linear-gradient(135deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 0, 0.65) 50%, rgba(191, 99, 13, 0.65) 100%)`;
+		if (style.preset === "water") return `linear-gradient(135deg, rgba(0, 170, 255, 0.60) 0%, rgba(0, 119, 179, 0.80) 50%, rgba(255, 255, 255, 0.37) 100%)`;
+		if (style.preset === "alert") return `linear-gradient(135deg, rgba(255, 0, 0, 0.60) 0%, rgba(119, 9, 9, 0.60) 50%, rgba(46, 0, 0, 0.60) 100%)`;
 		const start = style.color_start || "transparent";
 		const end = style.color_end || "transparent";
 		const angle = style.angle || 135;
