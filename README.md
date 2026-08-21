@@ -12,7 +12,7 @@ Perfect for creating beautiful dashboards without repeating the same `card_mod` 
 
 ![Home Assistant](https://img.shields.io/badge/Home%20Assistant-Custom%20Card-41BDF5?logo=homeassistant)
 ![HACS](https://img.shields.io/badge/HACS-Custom%20Repository-orange)
-![License](https://img.shields.io/github/license/Mariocoleguilla/ha-styled-stack-card)
+![License](https://img.shields.io/github/license/Mariocoleguilla/styled-stack-card)
 
 </p>
 
@@ -55,7 +55,7 @@ Styled Stack Card solves this by providing a real container card with its own st
 4. Add
 
 ```
-https://github.com/Mariocoleguilla/ha-styled-stack-card
+https://github.com/Mariocoleguilla/styled-stack-card
 ```
 
 Category:
