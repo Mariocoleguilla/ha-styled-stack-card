@@ -16,7 +16,7 @@ Perfect for creating beautiful dashboards without repeating the same `card_mod` 
 
 </p>
 
-<img width="499" height="505" alt="Captura de pantalla 2026-08-21 a las 12 09 21" src="https://github.com/user-attachments/assets/de6dfa27-ac8e-4009-b35f-9485692eda87" />
+<img width="499" height="505" alt="Captura de pantalla 2026-08-21 a las 12 09 21" src="https://github.com/user-attachments/assets/de6dfa27-ac8e-4009-b35f-9485692eda87" /> <img width="498" height="132" alt="image" src="https://github.com/user-attachments/assets/db5f1354-2227-4a12-91e1-ef97ff50a933" /> <img width="502" height="444" alt="image" src="https://github.com/user-attachments/assets/1cd99de6-1a1f-4745-a452-23c3f4ec9a07" /> <img width="500" height="243" alt="image" src="https://github.com/user-attachments/assets/af9e57ce-244d-41a8-b204-2baf70d9679a" /> <img width="498" height="181" alt="image" src="https://github.com/user-attachments/assets/af17a14c-3181-4256-9bf0-64d389bfbd6b" />
 
 ---
 
