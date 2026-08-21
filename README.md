@@ -16,6 +16,8 @@ Perfect for creating beautiful dashboards without repeating the same `card_mod` 
 
 </p>
 
+<img width="499" height="505" alt="Captura de pantalla 2026-08-21 a las 12 09 21" src="https://github.com/user-attachments/assets/de6dfa27-ac8e-4009-b35f-9485692eda87" />
+
 ---
 
 ## Why Styled Stack Card?
