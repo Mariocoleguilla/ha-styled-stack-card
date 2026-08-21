@@ -158,9 +158,6 @@ export class StyledStackCard extends LitElement {
         padding: 0;
         --ha-card-background: none !important;
         --card-background-color: transparent !important;
-        --ha-card-box-shadow: none !important;
-        --ha-card-border-width: 0px !important;
-        --ha-card-border-color: transparent !important;
       }
     `;
   }
